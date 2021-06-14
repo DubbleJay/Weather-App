@@ -7,7 +7,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -28,12 +27,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.example.locationtest.databinding.ActivityMainBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -45,19 +43,7 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity  {
 
-    private TextView forecastTextView;
-    private TextView cityTextView;
-    private TextView currentTempTextView;
-    private TextView descriptionTextView;
-    private ImageView weatherImageView;
-    private ProgressBar progressBar;
-    private View weatherContainer;
-    private RecyclerView hourlyForecastRecyclerView;
     private SearchView searchView;
-    private TextView errorTextView;
-    private TextView timeAndDateTextView;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private LinearLayout dailyForecastLinearLayout;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationRequest locationRequest;
     private final LocationCallback locationCallback = new LocationCallback() {
@@ -86,12 +72,17 @@ public class MainActivity extends AppCompatActivity  {
     private static final String KEY_CITY_NAME = "city_name";
     private static final String TAG = "Weather";
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private ActivityMainBinding binding;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         locationRequest = LocationRequest.create();
@@ -99,38 +90,20 @@ public class MainActivity extends AppCompatActivity  {
         locationRequest.setFastestInterval(2000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        cityTextView = findViewById(R.id.city_text_view);
+        binding.hourlyForecastRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        currentTempTextView = findViewById(R.id.temperature_text_view);
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
 
-        descriptionTextView = findViewById(R.id.description_text_view);
-
-        weatherImageView = findViewById(R.id.weather_icon_image_view);
-        progressBar = findViewById(R.id.weather_progress_bar);
-        weatherContainer = findViewById(R.id.weather_container);
-        forecastTextView = findViewById(R.id.high_and_low_temps_text_view);
-
-        errorTextView = findViewById(R.id.error_text_view);
-
-        timeAndDateTextView = findViewById(R.id.time_and_date_text_view);
-
-        hourlyForecastRecyclerView = findViewById(R.id.hourly_forecast_recycler_view);
-        hourlyForecastRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
-        dailyForecastLinearLayout = findViewById(R.id.daily_forecast_linear_layout);
-
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(() -> {
+            binding.swipeRefreshLayout.setRefreshing(false);
 
             if (usingCurrentLocation)
-             getCurrentLocationWeather();
+                getCurrentLocationWeather();
+
 
             else
                 new Thread(new FetchWeatherTask(currentCity.trim())).start();
 
-            weatherContainer.setVisibility(View.GONE);
+            binding.weatherContainer.setVisibility(View.GONE);
             searchView.setQuery("", false);
             searchView.setIconified(true);
             searchView.clearFocus();
@@ -143,7 +116,7 @@ public class MainActivity extends AppCompatActivity  {
             usingCurrentLocation = savedInstanceState.getBoolean(KEY_USING_CURRENT_LOCATION);
             currentCity = savedInstanceState.getString(KEY_CITY_NAME);
 
-            setWeatherRequestUi();
+            showWeatherRequestUi();
 
             if (usingCurrentLocation)
                 getCurrentLocationWeather();
@@ -170,9 +143,7 @@ public class MainActivity extends AppCompatActivity  {
 
             return false;
         } else { //permission is already granted
-
             return true;
-
             // start to find location...
         }
     }
@@ -180,6 +151,9 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -196,7 +170,7 @@ public class MainActivity extends AppCompatActivity  {
                     // functionality that depends on this permission.
                     if (!locationButtonClicked) {
                         usingCurrentLocation = false;
-                        setWeatherRequestUi();
+                        showWeatherRequestUi();
                         new Thread(new FetchWeatherTask("Baghdad")).start();
                     }
 
@@ -238,7 +212,7 @@ public class MainActivity extends AppCompatActivity  {
                 InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
 
-                setWeatherRequestUi();
+                showWeatherRequestUi();
 
                 usingCurrentLocation = false;
 
@@ -287,16 +261,16 @@ public class MainActivity extends AppCompatActivity  {
         return true;
     }
 
-    private void setWeatherRequestUi() {
-        progressBar.setVisibility(View.VISIBLE);
-        weatherContainer.setVisibility(View.GONE);
+    private void showWeatherRequestUi() {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.weatherContainer.setVisibility(View.GONE);
     }
 
     @SuppressLint("MissingPermission")
     private void getCurrentLocationWeather() {
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
         usingCurrentLocation = true;
-        setWeatherRequestUi();
+        showWeatherRequestUi();
     }
 
     private class FetchWeatherTask implements Runnable {
@@ -330,8 +304,8 @@ public class MainActivity extends AppCompatActivity  {
             } catch (IOException ioException) {
 
                 runOnUiThread(() -> {
-                    progressBar.setVisibility(View.GONE);
-                    errorTextView.setVisibility(View.VISIBLE);
+                    binding.progressBar.setVisibility(View.GONE);
+                    binding.errorTextView.setVisibility(View.VISIBLE);
                 });
 
                 Log.e(TAG, "Failed to fetch URL " + ioException);
@@ -340,31 +314,28 @@ public class MainActivity extends AppCompatActivity  {
 
             runOnUiThread(() -> {
                 currentCity = weatherObject.getCityName();
-                swipeRefreshLayout.setRefreshing(false);
-                errorTextView.setVisibility(View.GONE);
-                progressBar.setVisibility(View.GONE);
-                weatherContainer.setVisibility(View.VISIBLE);
-                timeAndDateTextView.setText(weatherObject.getDateAndTimeString());
-                currentTempTextView.setText(weatherObject.getTemperature() + "°");
-                cityTextView.setText(weatherObject.getCityName());
-                descriptionTextView.setText(weatherObject.getDescription());
-                weatherImageView.setImageResource(CurrentWeatherUtils.getIcon(weatherObject.getIconId()));
-                forecastTextView.setText("High: ↑ " + weatherObject.getDailyHigh() + "°" + " Low: ↓ "
+                binding.swipeRefreshLayout.setRefreshing(false);
+                binding.errorTextView.setVisibility(View.GONE);
+                binding.progressBar.setVisibility(View.GONE);
+                binding.weatherContainer.setVisibility(View.VISIBLE);
+                binding.timeAndDateTextView.setText(weatherObject.getDateAndTimeString());
+                binding.currentTempTextView.setText(weatherObject.getTemperature() + "°");
+                binding.cityTextView.setText(weatherObject.getCityName());
+                binding.descriptionTextView.setText(weatherObject.getDescription());
+                binding.currentWeatherImageView.setImageResource(CurrentWeatherUtils.getIcon(weatherObject.getIconId()));
+                binding.highAndLowTempsTextView.setText("High: ↑ " + weatherObject.getDailyHigh() + "°" + " Low: ↓ "
                         + weatherObject.getDailyLow() + "°");
-
-                dailyForecastLinearLayout.removeAllViews();
+                binding.dailyForecastLinearLayout.removeAllViews();
                 for (ForecastedDay forecastedDay : weatherObject.getDailyForecast())
-                    dailyForecastLinearLayout.addView(new DailyForecastView(getApplicationContext(), forecastedDay));
-
-                hourlyForecastRecyclerView.setAdapter(new HourlyForecastAdapter(weatherObject.getHourlyForecast()));
+                    binding.dailyForecastLinearLayout.addView(new DailyForecastView(getApplicationContext(), forecastedDay));
+                binding.hourlyForecastRecyclerView.setAdapter(new HourlyForecastAdapter(weatherObject.getHourlyForecast()));
             });
         }
-
     }
 
     private static class HourlyForecastAdapter extends RecyclerView.Adapter<HourlyForecastHolder> {
 
-        ForecastedHour[] hours;
+        private final ForecastedHour[] hours;
 
         HourlyForecastAdapter(ForecastedHour[] hours) {
             this.hours = hours;
@@ -391,9 +362,9 @@ public class MainActivity extends AppCompatActivity  {
 
     private static class HourlyForecastHolder extends RecyclerView.ViewHolder {
 
-        TextView timeTextView;
-        ImageView hourlyImageView;
-        TextView hourlyTempTextView;
+        private final TextView timeTextView;
+        private final ImageView hourlyImageView;
+        private final TextView hourlyTempTextView;
 
         HourlyForecastHolder(View itemView) {
             super(itemView);
@@ -426,5 +397,4 @@ public class MainActivity extends AppCompatActivity  {
             lowTempTextView.setText("↓ "+ forecastedDay.getDailyLow() +  "°");
         }
     }
-
 }
