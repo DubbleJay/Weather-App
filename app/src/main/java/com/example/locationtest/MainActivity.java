@@ -74,7 +74,6 @@ public class MainActivity extends AppCompatActivity  {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private ActivityMainBinding binding;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -98,7 +97,6 @@ public class MainActivity extends AppCompatActivity  {
 
             if (usingCurrentLocation)
                 getCurrentLocationWeather();
-
 
             else
                 new Thread(new FetchWeatherTask(currentCity.trim())).start();
