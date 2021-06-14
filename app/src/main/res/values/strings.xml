@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Weather</string>
+    <string name="degree_symbol">°</string>
+    <string name="high_temp">High: ↑</string>
+    <string name="low_temp">Low: ↓</string>
+    <string name="up_arrow">↑</string>
+    <string name="down_arrow">↓</string>
+</resources>
