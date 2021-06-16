@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -20,7 +19,6 @@ public class WeatherFetcher {
 
     private final String KEY = "6fdf142e83b58ab2831e15b6d04a59e2";
     private final String TAG = "WeatherFetcher";
-
 
     public WeatherObject fetchWeather(String city) throws IOException {
 
@@ -187,11 +185,9 @@ public class WeatherFetcher {
 
             forecastedDay.setDate(CurrentWeatherUtils.getDate(rightNow.get(Calendar.DAY_OF_WEEK), rightNow.get(Calendar.MONTH), rightNow.get(Calendar.DAY_OF_MONTH)));
             forecastedDays[i] = forecastedDay;
-
         }
 
         return forecastedDays;
-
     }
 
     private ForecastedHour[] getHourlyForecast(JSONArray hourlyArray, String timeZone) throws JSONException {
