@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity  {
         locationRequest.setInterval(4000);
         locationRequest.setFastestInterval(2000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
+        
         binding.hourlyForecastRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         binding.swipeRefreshLayout.setOnRefreshListener(() -> {
