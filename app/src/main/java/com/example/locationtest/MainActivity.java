@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity  {
                 binding.currentTempTextView.setText(weatherObject.getTemperature() + "°");
                 binding.cityTextView.setText(weatherObject.getCityName());
                 binding.descriptionTextView.setText(weatherObject.getDescription());
-                binding.currentWeatherImageView.setImageResource(CurrentWeatherUtils.getIcon(weatherObject.getIconId()));
+                binding.currentWeatherImageView.setImageResource(WeatherUtils.getIcon(weatherObject.getIconId()));
                 binding.highAndLowTempsTextView.setText("High: ↑ " + weatherObject.getDailyHigh() + "°" + " Low: ↓ "
                         + weatherObject.getDailyLow() + "°");
                 binding.dailyForecastLinearLayout.removeAllViews();
@@ -373,7 +373,7 @@ public class MainActivity extends AppCompatActivity  {
 
         public void bindForecastedHour(ForecastedHour forecastedHour) {
             timeTextView.setText(forecastedHour.getTimeString());
-            hourlyImageView.setImageResource(CurrentWeatherUtils.getIcon(forecastedHour.getIcon()));
+            hourlyImageView.setImageResource(WeatherUtils.getIcon(forecastedHour.getIcon()));
             hourlyTempTextView.setText(forecastedHour.getTemp() + "°");
         }
     }
@@ -388,7 +388,7 @@ public class MainActivity extends AppCompatActivity  {
             TextView descriptionTextView = findViewById(R.id.forecasted_day_description_text_view);
             descriptionTextView.setText(forecastedDay.getDescription());
             ImageView imageView = findViewById(R.id.forecasted_day_image_view);
-            imageView.setImageResource(CurrentWeatherUtils.getIcon(forecastedDay.getIcon()));
+            imageView.setImageResource(WeatherUtils.getIcon(forecastedDay.getIcon()));
             TextView highTempTextView = findViewById(R.id.forecasted_high_text_view);
             highTempTextView.setText("↑ " + forecastedDay.getDailyHigh() +  "°");
             TextView lowTempTextView = findViewById(R.id.forecasted_low_text_view);

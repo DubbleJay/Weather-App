@@ -144,7 +144,7 @@ public class WeatherFetcher {
 
         JSONObject currentJsonObject = jsonObject.getJSONObject("current");
         long currentTime = currentJsonObject.getLong("dt");
-        String dateAndTime = CurrentWeatherUtils.convertDate(currentTime, timezone_offset);
+        String dateAndTime = WeatherUtils.convertDate(currentTime, timezone_offset);
         weatherObject.setDateAndTimeString(dateAndTime);
 
         JSONArray dailyWeatherArray= jsonObject.getJSONArray("daily");
@@ -183,7 +183,7 @@ public class WeatherFetcher {
             Calendar rightNow = Calendar.getInstance(TimeZone.getTimeZone(timeZone));
             rightNow.add(Calendar.DAY_OF_MONTH, i);
 
-            forecastedDay.setDate(CurrentWeatherUtils.getDate(rightNow.get(Calendar.DAY_OF_WEEK), rightNow.get(Calendar.MONTH), rightNow.get(Calendar.DAY_OF_MONTH)));
+            forecastedDay.setDate(WeatherUtils.getDate(rightNow.get(Calendar.DAY_OF_WEEK), rightNow.get(Calendar.MONTH), rightNow.get(Calendar.DAY_OF_MONTH)));
             forecastedDays[i] = forecastedDay;
         }
 

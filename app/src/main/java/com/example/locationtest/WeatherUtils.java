@@ -5,12 +5,13 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
-public class CurrentWeatherUtils {
+public class WeatherUtils {
 
     public static String convertDate(long unixTimeStamp, long timeZoneOffset) {
-        DateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d, h:mm aaa");
+        DateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d, h:mm aaa", Locale.getDefault());
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date date = new Date((unixTimeStamp + timeZoneOffset) *1000 );
         return dateFormat.format(date);
